@@ -6,7 +6,7 @@ const typeDefs = `
         id: Int!
         name: String!
         balance: Int
-        bets: [Bet!]!
+        bets: [Bet]
     }
 
     type Bet {
@@ -83,6 +83,14 @@ const resolvers = {
         id: parent => parent.id,
         name: parent => parent.name,
         balance: parent => parent.balance
+    },
+    Bet: {
+        id: parent => parent.id,
+        userId: parent => parent.userId,
+        betAmount: parent => parent.betAmount,
+        chance: parent => parent.chance,
+        payout: parent => parent.payout,
+        win: parent => parent.win
     }
 };
 

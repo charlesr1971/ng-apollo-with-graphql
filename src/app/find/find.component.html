@@ -31,4 +31,24 @@
   <p>
     <b>Balance:</b><span> {{ user.balance }}</span>
   </p>
+  <div *ngIf="betsPerUser && betsPerUser.length > 0 ">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Bet Amount</th>
+          <th scope="col">Chance</th>
+          <th scope="col">Payout</th>
+          <th scope="col">Win</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let betPerUser of betsPerUser">
+          <td>{{ betPerUser.betAmount }}</td>
+          <td>{{ betPerUser.chance }}</td>
+          <td>{{ betPerUser.payout }}</td>
+          <td>{{ betPerUser.win }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
