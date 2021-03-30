@@ -1,0 +1,23 @@
+<p>Users</p>
+
+<div *ngIf="loading">
+  Loading...
+</div>
+<div *ngIf="error">
+  Error Occurred :(
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Balance</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let user of users">
+      <th scope="row">{{ user.name }}</th>
+      <td>{{ user.balance }}</td>
+    </tr>
+  </tbody>
+</table>

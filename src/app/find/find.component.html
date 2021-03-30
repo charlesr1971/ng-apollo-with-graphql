@@ -1,0 +1,32 @@
+<h3>Find user</h3>
+
+<form novalidate [formGroup]="findForm" class="form-inline">
+  <div class="form-group mx-sm-3 mb-2">
+    <label for="findUserIdInput" class="sr-only">Enter User ID</label>
+    <input 
+      type="text"
+      class="form-control"
+      name="findUserIdInput"
+      placeholder="Enter User ID"
+      formControlName="findUserIdInput"
+    />
+  </div>
+  <button (click)="getUser()" type="submit" class="btn btn-primary mb-2">
+    Find
+  </button>
+</form>
+
+<br />
+<div *ngIf="loading">
+  Loading...
+</div>
+
+<div>{{ error }}</div>
+
+<hr />
+<p>
+  <b>Name:</b><span> {{ user.name }}</span>
+</p>
+<p>
+  <b>Balance:</b><span> {{ user.balance }}</span>
+</p>
