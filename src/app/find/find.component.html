@@ -23,10 +23,12 @@
 
 <div>{{ error }}</div>
 
-<hr />
-<p>
-  <b>Name:</b><span> {{ user.name }}</span>
-</p>
-<p>
-  <b>Balance:</b><span> {{ user.balance }}</span>
-</p>
+<div *ngIf="!loading">
+  <hr />
+  <p>
+    <b>Name:</b><span> {{ user.name }}</span>
+  </p>
+  <p>
+    <b>Balance:</b><span> {{ user.balance }}</span>
+  </p>
+</div>

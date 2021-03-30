@@ -193,7 +193,7 @@ export class FindComponent {
 
     const users: any = this.getUserList();
 
-    users.map( (user) => {
+    users.map( (user: User, idx) => {
 
       this.error = "";
       this.loading = true;
@@ -218,7 +218,8 @@ export class FindComponent {
           if(data.bet){ 
             const obj = {
               userid: user.id,
-              data: data.bet
+              data: data.bet,
+              finished: idx === (users.length - 1) ? true : false
             }
             this.betsPerUser.push(obj);
           }
