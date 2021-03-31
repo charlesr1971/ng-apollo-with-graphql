@@ -1,20 +1,53 @@
-<h3>Find user</h3>
+<h3 style="margin-bottom:20px !important;">Find user</h3>
 
 <form novalidate [formGroup]="findForm" class="form-inline">
-  <div class="form-group mx-sm-3 mb-2">
+  <div class="form-group mx-sm-3 mb-2" style="margin-left:0px !important;">
     <label for="findUserIdInput" class="sr-only">Enter User ID</label>
     <input 
       type="text"
       class="form-control"
       name="findUserIdInput"
       placeholder="Enter User ID"
-      formControlName="findUserIdInput"
+      formControlName="findUserIdInput" 
+      value="{{userId}}"
     />
   </div>
-  <button (click)="getUser()" type="submit" class="btn btn-primary mb-2">
+  <button (click)="getUser()" type="submit" class="btn btn-primary mb-2" style="width:71px;">
     Find
   </button>
 </form>
+<div *ngIf="userId > 0">
+  <h3 style="margin-bottom:20px !important;margin-top:20px !important;">Create Bet</h3>
+  <form novalidate [formGroup]="createForm" class="form-inline">
+    <div class="form-group mx-sm-3 mb-2" style="margin-left:0px !important;">
+      <div style="width:100%;">
+        <label for="createBetAmountInput" class="sr-only">Enter Bet Amount</label>
+        <input 
+          type="text"
+          class="form-control"
+          name="createBetAmountInput"
+          placeholder="Enter Bet Amount"
+          formControlName="createBetAmountInput" 
+          style="margin-right:15px;"
+        />
+        <button (click)="createBet()" type="submit" class="btn btn-primary mb-2" style="margin-top:5px;">
+          Create
+        </button>
+      </div>
+      <div style="width:100%;">
+        <label for="createChanceInput" class="sr-only">Enter Chance</label>
+        <input 
+          type="text"
+          class="form-control"
+          name="createChanceInput"
+          placeholder="Enter Chance"
+          formControlName="createChanceInput"
+        />
+      </div>
+    </div>
+  </form>
+</div>
+
 
 <br />
 <div *ngIf="loading">

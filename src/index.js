@@ -6,7 +6,6 @@ const typeDefs = `
         id: Int!
         name: String!
         balance: Int
-        bets: [Bet]
     }
 
     type Bet {
@@ -26,7 +25,7 @@ const typeDefs = `
     }
 
     type Mutation {
-        user(name: String!, bets: [String!]!, balance: Int): User!
+        post(userId: Int!, betAmount: Int!, chance: Int!, payout: Int!, win: Int!): Bet!
     }
 
 `;
@@ -78,6 +77,19 @@ const resolvers = {
             return bets;
         },
         bet: (root, args, context, info) => bets.find(e => e.id === args.id)
+    },
+    Mutation: {
+        post: (parent, args) => {
+          const bet = {
+            userId: args.userId,
+            betAmount: args.betAmount,
+            chance: args.chance,
+            payout: args.payout,
+            win: args.win
+          };
+          bets.push(bet);
+          return bet;
+        }
     },
     User: {
         id: parent => parent.id,

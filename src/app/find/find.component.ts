@@ -23,9 +23,12 @@ export class FindComponent {
   betsFinished: Subject<any> = new Subject<any>();
   betsPerUserFinished: Subject<any> = new Subject<any>();
 
-  formData = {};
   findForm: FormGroup;
   findUserIdInput: FormControl;
+
+  createForm: FormGroup;
+  createBetAmountInput: FormControl;
+  createChanceInput: FormControl;
 
   userId: number = 1;
   user: User;
@@ -34,6 +37,8 @@ export class FindComponent {
   bet: Bet;
   bets: Array<Bet>;
   betsPerUser: any;
+  betAmount: number = 0;
+  chance: number = 0;
   loading = false;
   error: string;
 
@@ -46,9 +51,9 @@ export class FindComponent {
   }
 
   ngOnInit() {
-    this.createFormControls();
-    this.createForm();
-    this.monitorFormValueChanges();
+    this.createFormsControls();
+    this.createForms();
+    this.monitorFormsValueChanges();
     this.getUser();
 
     this.userFinished.subscribe( (finished) => {
@@ -90,19 +95,29 @@ export class FindComponent {
 
   }
 
-  private createForm(): void {
+  private createForms(): void {
     this.findForm = new FormGroup({
       findUserIdInput: this.findUserIdInput
     });
+    this.createForm = new FormGroup({
+      createBetAmountInput: this.createBetAmountInput,
+      createChanceInput: this.createChanceInput
+    });
   }
 
-  private createFormControls(): void {
+  private createFormsControls(): void {
     this.findUserIdInput = new FormControl('', [
+      Validators.required
+    ]);
+    this.createBetAmountInput = new FormControl('', [
+      Validators.required
+    ]);
+    this.createChanceInput = new FormControl('', [
       Validators.required
     ]);
   }
 
-  private monitorFormValueChanges(): void {
+  private monitorFormsValueChanges(): void {
     if(this.findForm) {
       this.findUserIdInput.valueChanges
       .pipe(
@@ -113,8 +128,31 @@ export class FindComponent {
         if(this.debug) {
           console.log('FindComponent.component: monitorFormValueChanges(): id: ',id);
         }
-        this.formData['userId'] = id;
         this.userId = parseInt(id);
+      });
+    }
+    if(this.createForm) {
+      this.createBetAmountInput.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(betAmount => {
+        if(this.debug) {
+          console.log('FindComponent.component: monitorFormValueChanges(): betAmount: ',betAmount);
+        }
+        this.betAmount = parseInt(betAmount);
+      });
+      this.createChanceInput.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      )
+      .subscribe(chance => {
+        if(this.debug) {
+          console.log('FindComponent.component: monitorFormValueChanges(): chance: ',chance);
+        }
+        this.chance = parseInt(chance);
       });
     }
   }
@@ -276,7 +314,73 @@ export class FindComponent {
 
     }
 
+  }
 
+  createBet(): void {
+    //if(this.debug) {
+      console.log('FindComponent.component: createBet(): this.betAmount: ',this.betAmount,' this.chance: ',this.chance);
+    //}
+    /* userId: args.userId,
+    betAmount: args.betAmount,
+    chance: args.chance,
+    payout: args.payout,
+    win: args.win */
+    const submitBet = gql`
+      mutation submitBet(
+        $userId: Int
+        $betAmount: Int
+        $chance: Int
+        $payout: Int
+        $win: Int
+      ) {
+        bet(userId: $userId, betAmount: $betAmount, chance: $chance, payout: $payout, win: $win) {
+          id
+        }
+      }
+    `;
+    const getBetsQuery = gql`
+      {
+        bets {
+          userId
+          betAmount
+          chance
+          payout
+          win
+        }
+      }
+    `;
+    this.apollo
+      .mutate({
+        mutation: submitBet,
+        variables: {
+          userId: this.userId,
+          betAmount: this.betAmount,
+          chance: this.chance,
+          payout: 0,
+          win: 0
+        },
+        update: (store, mutationResult: any) => {
+          // Read the data from our cache for this query.
+          const data: any = store.readQuery({
+            query: getBetsQuery
+          });
+          // Add the bet from the mutation to the list of bets in the cache.
+          data.bets = [...data.bets, mutationResult.data.bet];
+          // Write the data back to the cache.
+          store.writeQuery({
+            query: getBetsQuery,
+            data
+          });
+        }
+      })
+      .subscribe(
+        ({ data }) => {
+          alert("Bet Saved!")
+        },
+        error => {
+          console.log("there was an error sending the query", error);
+        }
+      );
   }
 
 
