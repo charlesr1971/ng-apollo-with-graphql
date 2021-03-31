@@ -36,7 +36,7 @@
           formControlName="createBetAmountInput" 
           style="margin-right:15px;"
         />
-        <button (click)="createBet()" type="submit" class="btn btn-primary mb-2" style="margin-top:5px;">
+        <button (click)="_createBet()" type="submit" class="btn btn-primary mb-2" style="margin-top:5px;">
           Create
         </button>
       </div>
@@ -96,7 +96,7 @@
           <td>1/{{ betPerUser.chance }}</td>
           <td>{{ betPerUser.payout | number: '1.0-2' | payoutFormat: betPerUser.win}}</td>
           <td>{{ betPerUser.win }}</td>
-          <td><button class="delete" (click)="delete(betPerUser.id)" type="button">X</button></td>
+          <td><button class="delete" (click)="_deleteBet(betPerUser.id)" type="button">X</button></td>
         </tr>
       </tbody>
     </table>

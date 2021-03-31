@@ -54,21 +54,6 @@ const updateUser = gql`
   }
 `;
 
-
-/* const updateUser = gql`
-  mutation UpdateUser(
-    $id: Int!
-    $name: String!
-    $balance: Float!
-  ) {
-    updateUser(where: {id: {_eq: $id}}, _set: {name: $name, balance: $balance}) {
-      id
-      name
-      balance
-    }
-  }
-`; */
-
 const getUsersQuery = gql`
   {
     users {
@@ -421,26 +406,26 @@ export class FindComponent {
 
   }
 
-  createBet(): void {
+  _createBet(): void {
 
-    //if(this.debug) {
-      console.log('FindComponent.component: createBet(): this.betAmount: ',this.betAmount,' this.chance: ',this.chance);
-    //}
+    if(this.debug) {
+      console.log('FindComponent.component: _createBet(): this.betAmount: ',this.betAmount,' this.chance: ',this.chance);
+    }
     const integerPattern1: any = new RegExp('^[0-9]*$','igm');
     const integerPattern2: any = new RegExp('^[0-9]*$','igm');
     const floatPattern: any = new RegExp('^[0-9.]*$','igm');
 
     const isValidBetAmount: boolean = integerPattern1.test(this.betAmount);
 
-    //if(this.debug) {
-      console.log('FindComponent.component: createBet(): isValidBetAmount: ',isValidBetAmount);
-    //}
+    if(this.debug) {
+      console.log('FindComponent.component: _createBet(): isValidBetAmount: ',isValidBetAmount);
+    }
 
     const isValidChance: boolean = integerPattern2.test(this.chance);
 
-    //if(this.debug) {
-      console.log('FindComponent.component: createBet(): isValidChance: ',isValidChance);
-    //}
+    if(this.debug) {
+      console.log('FindComponent.component: _createBet(): isValidChance: ',isValidChance);
+    }
 
     const isValid = isValidChance && isValidBetAmount ? true : false;
 
@@ -476,7 +461,7 @@ export class FindComponent {
           update: (store, mutationResult: any) => {
             // Read the data from our cache for this query.
             if(this.debug) {
-              console.log('FindComponent.component: createBet(): store: ',store,' mutationResult: ',mutationResult);
+              console.log('FindComponent.component: _createBet(): store: ',store,' mutationResult: ',mutationResult);
             }
             const data: any = store.readQuery({
               query: getBetsQuery
@@ -493,7 +478,7 @@ export class FindComponent {
         .subscribe(
           ({ data }) => {
             if(this.debug) {
-              console.log('FindComponent.component: createBet(): data: ',data);
+              console.log('FindComponent.component: _createBet(): data: ',data);
             }
             this.getBetList();
           },
@@ -524,9 +509,9 @@ export class FindComponent {
               index = idx;
               return user.id === this.userId;
             })
-            //if(this.debug) {
+            if(this.debug) {
               console.log('FindComponent.component: updateUser(): user: ',user);
-            //}
+            }
             data.users = [...data.users, mutationResult.data.createUser];
             const newArray = Object.assign([], data.users, {[index]: user});
             data.users = newArray;
@@ -555,11 +540,11 @@ export class FindComponent {
 
   }
 
-  delete(id: number): void {
+  _deleteBet(id: number): void {
 
-    //if(this.debug) {
-      console.log('FindComponent.component: reset(): id: ',id);
-    //}
+    if(this.debug) {
+      console.log('FindComponent.component: _deleteBet(): id: ',id);
+    }
 
     this.apollo
       .mutate({
@@ -570,7 +555,7 @@ export class FindComponent {
         update: (store, mutationResult: any) => {
           // Read the data from our cache for this query.
           if(this.debug) {
-            console.log('FindComponent.component: reset(): store: ',store,' mutationResult: ',mutationResult);
+            console.log('FindComponent.component: _deleteBet(): store: ',store,' mutationResult: ',mutationResult);
           }
           const data: any = store.readQuery({
             query: getBetsQuery
@@ -590,7 +575,7 @@ export class FindComponent {
       .subscribe(
         ({ data }) => {
           if(this.debug) {
-            console.log('FindComponent.component: reset(): data: ',data);
+            console.log('FindComponent.component: _deleteBet(): data: ',data);
           }
           this.getBetList();
         },
