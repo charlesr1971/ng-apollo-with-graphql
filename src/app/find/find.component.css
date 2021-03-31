@@ -1,0 +1,53 @@
+.form-inline label {
+    display: inline-block;
+    width: 150px;
+}
+
+.form-validation {
+    width: 465px;
+    border-radius: 10px;
+    background: rgba(255,87,34,0.10);
+    padding: 20px;
+    color: rgba(0,0,0,0.5);
+    text-align: left;
+    font-weight: normal;
+    margin-top: 20px;
+    box-sizing: border-box;
+}
+
+button.delete {
+    appearance: none;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+    border: none;
+    background: none;
+}
+
+/* media queries */
+
+/* tablets */
+
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 1) {
+
+
+}
+
+/* smart phones */
+
+@media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+
+    .form-validation {
+        width: 100%;
+    }
+
+
+}
+
+@media only screen and (min-device-width : 481px) and (max-device-width : 667px) {
+
+    .form-validation {
+        width: 100%;
+    }
+
+  
+}

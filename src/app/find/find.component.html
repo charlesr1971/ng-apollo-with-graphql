@@ -2,15 +2,19 @@
 
 <form novalidate [formGroup]="findForm" class="form-inline">
   <div class="form-group mx-sm-3 mb-2" style="margin-left:0px !important;">
-    <label for="findUserIdInput" class="sr-only">Enter User ID</label>
-    <input 
-      type="text"
-      class="form-control"
-      name="findUserIdInput"
-      placeholder="Enter User ID"
-      formControlName="findUserIdInput" 
-      value="{{userId}}"
-    />
+    <div style="width:100%;">
+      <div class="form-control-feedback" *ngIf="findUserIdInput.errors && (findUserIdInput.dirty || findUserIdInput.touched)">
+        <p *ngIf="findUserIdInput.errors.pattern" class="text-danger">Integer Only</p>
+      </div>
+      <label for="findUserIdInput">Enter User ID</label>
+      <input 
+        type="text"
+        class="form-control"
+        name="findUserIdInput"
+        formControlName="findUserIdInput" 
+        value="{{userId}}"
+      />
+    </div>
   </div>
   <button (click)="getUser()" type="submit" class="btn btn-primary mb-2" style="width:71px;">
     Find
@@ -21,12 +25,14 @@
   <form novalidate [formGroup]="createForm" class="form-inline">
     <div class="form-group mx-sm-3 mb-2" style="margin-left:0px !important;">
       <div style="width:100%;">
-        <label for="createBetAmountInput" class="sr-only">Enter Bet Amount</label>
+        <div class="form-control-feedback" *ngIf="createBetAmountInput.errors && (createBetAmountInput.dirty || createBetAmountInput.touched)">
+          <p *ngIf="createBetAmountInput.errors.pattern" class="text-danger">Integer Only</p>
+        </div>
+        <label for="createBetAmountInput">Enter Bet Amount</label>
         <input 
           type="text"
           class="form-control"
           name="createBetAmountInput"
-          placeholder="Enter Bet Amount"
           formControlName="createBetAmountInput" 
           style="margin-right:15px;"
         />
@@ -35,17 +41,24 @@
         </button>
       </div>
       <div style="width:100%;">
-        <label for="createChanceInput" class="sr-only">Enter Chance</label>
+        <div class="form-control-feedback" *ngIf="createChanceInput.errors && (createChanceInput.dirty || createChanceInput.touched)">
+          <p *ngIf="createChanceInput.errors.pattern" class="text-danger">Integer Only</p>
+        </div>
+        <label for="createChanceInput">Enter Chance</label>
         <input 
           type="text"
           class="form-control"
           name="createChanceInput"
-          placeholder="Enter Chance"
+          placeholder="1/"
           formControlName="createChanceInput"
         />
       </div>
     </div>
   </form>
+</div>
+
+<div class="form-validation" *ngIf="formValidationMessage != ''">
+  {{ formValidationMessage }}
 </div>
 
 
@@ -73,15 +86,17 @@
           <th scope="col">Chance</th>
           <th scope="col">Payout</th>
           <th scope="col">Win</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let betPerUser of betsPerUser">
           <td>{{ betPerUser.id }}</td>
-          <td>{{ betPerUser.betAmount }}</td>
-          <td>{{ betPerUser.chance }}</td>
-          <td>{{ betPerUser.payout }}</td>
+          <td>{{ betPerUser.betAmount | number: '1.0-2' }}</td>
+          <td>1/{{ betPerUser.chance }}</td>
+          <td>{{ betPerUser.payout | number: '1.0-2' | payoutFormat: betPerUser.win}}</td>
           <td>{{ betPerUser.win }}</td>
+          <td><button class="delete" (click)="delete(betPerUser.id)" type="button">X</button></td>
         </tr>
       </tbody>
     </table>

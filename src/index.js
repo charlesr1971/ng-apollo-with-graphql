@@ -1,6 +1,6 @@
 const { GraphQLServer } = require("graphql-yoga");
 
-let count = 3;
+let count = 4;
 
 const typeDefs = `
 
@@ -29,6 +29,7 @@ const typeDefs = `
     type Mutation {
         createBet(userId: Int!, betAmount: Float!, chance: Float!, payout: Float!, win: Int!): Bet!
         updateUser(id: Int!, name: String!, balance: Float!): User!
+        deleteBet(id: Int!): Bet!
     }
 
 `;
@@ -110,6 +111,17 @@ const resolvers = {
                 }
             });
             return updatedUser;
+        },
+        deleteBet: (_, { id }) => {
+            const betToDelete = bets.find(x => x.id === id);
+
+            if(betToDelete){
+                bets = bets.filter(bet => {
+                    return bet.id !== betToDelete.id;
+                });
+            }
+
+            return betToDelete;
         }
     },
     User: {

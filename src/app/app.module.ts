@@ -9,8 +9,10 @@ import { GraphQLModule } from "./graphql.module";
 import { HttpClientModule } from "@angular/common/http";
 import { FindComponent } from "./find/find.component";
 
+import { PayoutFormatPipe } from './pipes/payout-format/payout-format.pipe';
+
 @NgModule({
-  declarations: [AppComponent, HomeComponent, FindComponent],
+  declarations: [AppComponent, HomeComponent, FindComponent, PayoutFormatPipe],
   imports: [
     BrowserModule,
     AppRoutingModule,
