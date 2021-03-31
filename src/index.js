@@ -1,5 +1,7 @@
 const { GraphQLServer } = require("graphql-yoga");
 
+let count = 3;
+
 const typeDefs = `
 
     type User {
@@ -19,13 +21,13 @@ const typeDefs = `
 
     type Query {
         users: [User!]
-        user(id: Int!): User
+        user(id: Int!): User!
         bets: [Bet!]
-        bet(id: Int!): Bet
+        bet(id: Int!): Bet!
     }
 
     type Mutation {
-        post(userId: Int!, betAmount: Int!, chance: Int!, payout: Int!, win: Int!): Bet!
+        createBet(userId: Int!, betAmount: Int!, chance: Int!, payout: Int!, win: Int!): Bet!
     }
 
 `;
@@ -78,14 +80,29 @@ const resolvers = {
         },
         bet: (root, args, context, info) => bets.find(e => e.id === args.id)
     },
-    Mutation: {
-        post: (parent, args) => {
+    /* Mutation: {
+        createBet: (parent, args) => {
           const bet = {
+            id: count++,
             userId: args.userId,
             betAmount: args.betAmount,
             chance: args.chance,
             payout: args.payout,
             win: args.win
+          };
+          bets.push(bet);
+          return bet;
+        }
+    }, */
+    Mutation: {
+        createBet: (_, { userId, betAmount, chance, payout, win  }, context, info) => {
+          const bet = {
+            id: count++,
+            userId,
+            betAmount,
+            chance,
+            payout,
+            win
           };
           bets.push(bet);
           return bet;

@@ -8,6 +8,38 @@ import gql from "graphql-tag";
 import { User } from '../models/user/user.model';
 import { Bet } from '../models/bet/bet.model';
 
+const createBet = gql`
+  mutation CreateBet(
+    $userId: Int!
+    $betAmount: Int!
+    $chance: Int!
+    $payout: Int!
+    $win: Int!
+  ) {
+    createBet(userId: $userId, betAmount: $betAmount, chance: $chance, payout: $payout, win: $win) {
+      id
+      userId
+      betAmount
+      chance
+      payout
+      win
+    }
+  }
+`;
+
+const getBetsQuery = gql`
+  {
+    bets {
+      id
+      userId
+      betAmount
+      chance
+      payout
+      win
+    }
+  }
+`;
+
 @Component({
   selector: "app-find",
   templateUrl: "./find.component.html",
@@ -41,6 +73,8 @@ export class FindComponent {
   chance: number = 0;
   loading = false;
   error: string;
+
+  count: number = 3;
 
   constructor(private apollo: Apollo) {
     this.userFinished.next(false);
@@ -287,12 +321,12 @@ export class FindComponent {
         if(data){
           this.bets = data.bets;
           this.betsFinished.next(true);
+          if(this.debug) {
+            console.log('FindComponent.component: getBetList(): data.bets: ',data.bets);
+          }
         }
         else{
           this.error = "Bets do not exist";
-        }
-        if(this.debug) {
-          console.log('FindComponent.component: getBetList(): data.bets: ',data.bets);
         }
         this.loading = loading;
       },
@@ -317,37 +351,16 @@ export class FindComponent {
   }
 
   createBet(): void {
+
     if(this.debug) {
       console.log('FindComponent.component: createBet(): this.betAmount: ',this.betAmount,' this.chance: ',this.chance);
     }
-    const submitBet = gql`
-      mutation submitBet(
-        $userId: Int
-        $betAmount: Int
-        $chance: Int
-        $payout: Int
-        $win: Int
-      ) {
-        bet(userId: $userId, betAmount: $betAmount, chance: $chance, payout: $payout, win: $win) {
-          id
-        }
-      }
-    `;
-    const getBetsQuery = gql`
-      {
-        bets {
-          userId
-          betAmount
-          chance
-          payout
-          win
-        }
-      }
-    `;
+    
     this.apollo
       .mutate({
-        mutation: submitBet,
+        mutation: createBet,
         variables: {
+          id: this.count++,
           userId: this.userId,
           betAmount: this.betAmount,
           chance: this.chance,
@@ -356,11 +369,14 @@ export class FindComponent {
         },
         update: (store, mutationResult: any) => {
           // Read the data from our cache for this query.
+          if(this.debug) {
+            console.log('FindComponent.component: createBet(): store: ',store,' mutationResult: ',mutationResult);
+          }
           const data: any = store.readQuery({
             query: getBetsQuery
           });
           // Add the bet from the mutation to the list of bets in the cache.
-          data.bets = [...data.bets, mutationResult.data.bet];
+          data.bets = [...data.bets, mutationResult.data.createBet];
           // Write the data back to the cache.
           store.writeQuery({
             query: getBetsQuery,
@@ -370,7 +386,10 @@ export class FindComponent {
       })
       .subscribe(
         ({ data }) => {
-          alert("Bet Saved!")
+          if(this.debug) {
+            console.log('FindComponent.component: createBet(): data: ',data);
+          }
+          this.getBetList();
         },
         error => {
           console.log("there was an error sending the query", error);
