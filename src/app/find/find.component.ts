@@ -11,9 +11,9 @@ import { Bet } from '../models/bet/bet.model';
 const createBet = gql`
   mutation CreateBet(
     $userId: Int!
-    $betAmount: Int!
-    $chance: Int!
-    $payout: Int!
+    $betAmount: Float!
+    $chance: Float!
+    $payout: Float!
     $win: Int!
   ) {
     createBet(userId: $userId, betAmount: $betAmount, chance: $chance, payout: $payout, win: $win) {
@@ -36,6 +36,40 @@ const getBetsQuery = gql`
       chance
       payout
       win
+    }
+  }
+`;
+
+const updateUser = gql`
+  mutation UpdateUser(
+    $id: Int!
+    $name: String!,
+    $balance: Float!
+  ) {
+    updateUser(id: $id, name: $name, balance: $balance) {
+      id
+      name
+      balance
+    }
+  }
+`;
+
+const getUsersQuery = gql`
+  {
+    users {
+      id
+      name
+      balance
+    }
+  }
+`;
+
+const getUserQuery = gql`
+  query($id: Int!) {
+    user(id: $id) {
+      id
+      name 
+      balance 
     }
   }
 `;
@@ -219,6 +253,8 @@ export class FindComponent {
       .subscribe(({ data, loading }) => {
         if (data.user){
           this.user = data.user;
+          const newBalance: any = this.user.balance;
+          this.user.balance = parseInt(newBalance);
           this.getBetList();
           this.userFinished.next(true);
         }
@@ -355,6 +391,16 @@ export class FindComponent {
     if(this.debug) {
       console.log('FindComponent.component: createBet(): this.betAmount: ',this.betAmount,' this.chance: ',this.chance);
     }
+
+    const payout = this.betAmount * this.chance;
+    const win = Math.round(Math.random());
+
+    const balance: number = Number(this.user.balance);
+
+    let newBalance: any = win === 0 ? (balance - payout) : (balance + payout);
+    newBalance = parseInt(newBalance);
+
+    this.user.balance = newBalance;
     
     this.apollo
       .mutate({
@@ -364,8 +410,8 @@ export class FindComponent {
           userId: this.userId,
           betAmount: this.betAmount,
           chance: this.chance,
-          payout: 0,
-          win: 0
+          payout: payout,
+          win: win
         },
         update: (store, mutationResult: any) => {
           // Read the data from our cache for this query.
@@ -395,6 +441,53 @@ export class FindComponent {
           console.log("there was an error sending the query", error);
         }
       );
+
+      this.apollo
+      .mutate({
+        mutation: updateUser,
+        variables: {
+          id: this.userId,
+          name: this.user.name,
+          balance: newBalance
+        },
+        update: (store, mutationResult: any) => {
+          // Read the data from our cache for this query.
+          if(this.debug) {
+            console.log('FindComponent.component: updateUser(): store: ',store,' mutationResult: ',mutationResult);
+          }
+
+          const data: any = store.readQuery({
+            query: getUsersQuery
+          });
+          // Add the user from the mutation to the list of users in the cache.
+          let index = 0;
+          const user = data.users.filter( (user, idx: number) => {
+            index = idx;
+            return user.id === this.userId;
+          })
+          data.users = [...data.users, mutationResult.data.createUser];
+          const newArray = Object.assign([], data.users, {[index]: user});
+          data.users = newArray;
+          // Write the data back to the cache.
+          store.writeQuery({
+            query: getUsersQuery,
+            data
+          });
+
+        }
+      })
+      .subscribe(
+        ({ data }) => {
+          if(this.debug) {
+            console.log('FindComponent.component: updateUser(): data: ',data);
+          }
+        },
+        error => {
+            console.log("there was an error sending the query", error);
+        }
+      );
+
+
   }
 
 

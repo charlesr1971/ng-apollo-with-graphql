@@ -7,15 +7,15 @@ const typeDefs = `
     type User {
         id: Int!
         name: String!
-        balance: Int
+        balance: Float!
     }
 
     type Bet {
         id: Int!
         userId: Int!
-        betAmount: Int!
-        chance: Int!
-        payout: Int!
+        betAmount: Float!
+        chance: Float!
+        payout: Float!
         win: Int!
     }
 
@@ -27,7 +27,8 @@ const typeDefs = `
     }
 
     type Mutation {
-        createBet(userId: Int!, betAmount: Int!, chance: Int!, payout: Int!, win: Int!): Bet!
+        createBet(userId: Int!, betAmount: Float!, chance: Float!, payout: Float!, win: Int!): Bet!
+        updateUser(id: Int!, name: String!, balance: Float!): User!
     }
 
 `;
@@ -35,15 +36,15 @@ const typeDefs = `
 const users = [{
     id: 1,
     name: "John Morris",
-    balance: 10
+    balance: 7500000
 }, {
     id: 2,
     name: "Alan Davies",
-    balance: 5
+    balance: 12500000
 }, {
     id: 3,
     name: "Peter Williams",
-    balance: 150
+    balance: 1500000
 }];
 
 const bets = [{
@@ -80,20 +81,6 @@ const resolvers = {
         },
         bet: (root, args, context, info) => bets.find(e => e.id === args.id)
     },
-    /* Mutation: {
-        createBet: (parent, args) => {
-          const bet = {
-            id: count++,
-            userId: args.userId,
-            betAmount: args.betAmount,
-            chance: args.chance,
-            payout: args.payout,
-            win: args.win
-          };
-          bets.push(bet);
-          return bet;
-        }
-    }, */
     Mutation: {
         createBet: (_, { userId, betAmount, chance, payout, win  }, context, info) => {
           const bet = {
@@ -106,6 +93,23 @@ const resolvers = {
           };
           bets.push(bet);
           return bet;
+        },
+        updateUser: (_, { id, name, balance }) => {
+            let updatedUser;
+            users = users.map(user => {
+                if (user.id === id) {
+                    updatedUser = {
+                        id: user.id,
+                        name: name !== undefined ? name : user.name,
+                        balance: balance !== undefined ? balance : user.balance
+                    }
+                    return updatedUser;
+                } 
+                else {
+                    return user
+                }
+            });
+            return updatedUser;
         }
     },
     User: {
