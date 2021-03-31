@@ -317,14 +317,9 @@ export class FindComponent {
   }
 
   createBet(): void {
-    //if(this.debug) {
+    if(this.debug) {
       console.log('FindComponent.component: createBet(): this.betAmount: ',this.betAmount,' this.chance: ',this.chance);
-    //}
-    /* userId: args.userId,
-    betAmount: args.betAmount,
-    chance: args.chance,
-    payout: args.payout,
-    win: args.win */
+    }
     const submitBet = gql`
       mutation submitBet(
         $userId: Int
