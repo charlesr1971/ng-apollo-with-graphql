@@ -120,6 +120,7 @@ export class FindComponent {
   betsPerUser: any;
   betAmount: number = 0;
   chance: number = 0;
+  userIds: string = '';
   loading = false;
   error: string;
 
@@ -140,6 +141,7 @@ export class FindComponent {
     this.createForms();
     this.monitorFormsValueChanges();
     this.getUser();
+    this.getUserList();
 
     this.userFinished.subscribe( (finished) => {
       if(this.debug) {
@@ -155,6 +157,7 @@ export class FindComponent {
         console.log('FindComponent.component: this.usersFinished: finished ',finished);
       }  
       if(finished){
+        this.userIds = this.getUserIds(this.users);
         this.usersFinished.next(false);
       }
     });
@@ -243,6 +246,20 @@ export class FindComponent {
         this.chance = chance;
       });
     }
+  }
+
+  getUserIds(users: any): string {
+    let usersids = [];
+    if (users && users.length > 1){
+      users.map( (user: User) => {
+        usersids.push(user.id);
+        return true; 
+      });
+    }
+    //if(this.debug) {
+      console.log('FindComponent.component: getUserIds(): usersids: ',usersids);
+    //}
+    return usersids.join(',');
   }
 
   getUserNames(users: any): Array<User> {
@@ -500,7 +517,7 @@ export class FindComponent {
           }
         );
 
-      this.apollo
+      /* this.apollo
         .mutate({
           mutation: updateUser,
           variables: {
@@ -544,7 +561,7 @@ export class FindComponent {
           error => {
               console.log("there was an error sending the query", error);
           }
-        );
+        ); */
 
     }
     else{

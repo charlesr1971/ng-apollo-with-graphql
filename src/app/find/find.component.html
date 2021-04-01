@@ -1,5 +1,7 @@
 <h3 style="margin-bottom:20px !important;">Find user</h3>
 
+<p *ngIf="userIds != ''"><strong>User IDs:</strong> {{ userIds }}</p>
+
 <form novalidate [formGroup]="findForm" class="form-inline">
   <div class="form-group mx-sm-3 mb-2" style="margin-left:0px !important;">
     <div style="width:100%;">
