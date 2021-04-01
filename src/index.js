@@ -96,7 +96,7 @@ const resolvers = {
           return bet;
         },
         updateUser: (_, { id, name, balance }, context, info) => {
-            let updatedUser;
+            /* let updatedUser;
             users = users.map(user => {
                 if (user.id === id) {
                     updatedUser = {
@@ -110,43 +110,64 @@ const resolvers = {
                     return user
                 }
             });
-            return updatedUser;
-            /* let updatedUser;
-            for(var i = 0; i < users.length; i++){
-                const user = users[i];
+            return updatedUser; */
+
+            let updatedUser;
+            let index = 0;
+            users.map( (user, idx) => {
                 if (user.id === id) {
+                    index = idx;
                     updatedUser = {
                         id: user.id,
                         name: name !== undefined ? name : user.name,
                         balance: balance !== undefined ? balance : user.balance
                     }
-                    users.push(updatedUser);
+                    return updatedUser;
                 } 
                 else {
-                    users.push(user);
+                    return user
                 }
-            } 
-            return updatedUser; */
+            });
+            Object.assign([], users, {index: updatedUser});
+            return updatedUser;
+            
         },
         deleteBet: (_, { id }, context, info) => {
-            const betToDelete = bets.find(x => x.id === id);
+            /*********************************************
+             
+            there is a bug in GraphQL that throws an error:
+
+            https://github.com/strapi/strapi/issues/2816
+            
+            "message": "Assignment to constant variable."
+
+            The error is caused by the fact that GraphQL
+            thinks that the Array.prototype.filter() method 
+            is a mutable operation.
+
+            The routine commented out below is the most
+            efficient way to remove an item from an immutable
+            array. However, due to this bug, the second
+            routine, which uses the Array.prototype.splice()
+            method, must be implemented, instead.
+
+            **********************************************/
+
+            /* const betToDelete = bets.find(x => x.id === id);
             if(betToDelete){
                 bets = bets.filter(bet => {
                     return bet.id !== betToDelete.id;
                 });
             }
-            return betToDelete;
-            /* let betToDelete;
-            for(var i = 0; i < bets.length; i++){
-                const bet = bets[i];
-                if(bet.id === id){
-                    betToDelete = bet;
-                }
-                else{
-                    bets.push(bet);
-                }
-            }
             return betToDelete; */
+
+            const betToDelete = bets.find(x => x.id === id);
+            const idx = (bet) => bet.id === id;
+            const index = bets.findIndex(idx);
+            if(betToDelete && bets.length >= index){
+                bets.splice(index,1);
+            }
+            return betToDelete;
         }
     },
     User: {

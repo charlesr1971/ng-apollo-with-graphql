@@ -517,7 +517,7 @@ export class FindComponent {
           }
         );
 
-      /* this.apollo
+      this.apollo
         .mutate({
           mutation: updateUser,
           variables: {
@@ -534,17 +534,21 @@ export class FindComponent {
               query: getUsersQuery
             });
             // Add the user from the mutation to the list of users in the cache.
+            let updatedUser;
             let index = 0;
             const user = data.users.filter( (user, idx: number) => {
-              index = idx;
+              if(user.id === this.userId){
+                index = idx;
+                updatedUser = user;
+              }
               return user.id === this.userId;
             })
             if(this.debug) {
               console.log('FindComponent.component: updateUser(): user: ',user);
             }
             data.users = [...data.users, mutationResult.data.createUser];
-            const newArray = Object.assign([], data.users, {[index]: user});
-            data.users = newArray;
+            Object.assign([], data.users, {[index]: updatedUser});
+            //data.users = newArray;
             // Write the data back to the cache.
             store.writeQuery({
               query: getUsersQuery,
@@ -561,7 +565,7 @@ export class FindComponent {
           error => {
               console.log("there was an error sending the query", error);
           }
-        ); */
+        );
 
     }
     else{
@@ -572,9 +576,19 @@ export class FindComponent {
 
   _deleteBet(id: number): void {
 
-    if(this.debug) {
+    //if(this.debug) {
       console.log('FindComponent.component: _deleteBet(): id: ',id);
-    }
+    //}
+
+    /* this.bets = this.bets.filter( (bet: Bet) => {
+      return bet.id !== id
+    });
+
+    //if(this.debug) {
+      console.log('FindComponent.component: _deleteBet(): this.bets: ',this.bets);
+    //}
+
+    this.getBetsPerUser(this.userId); */
 
     this.apollo
       .mutate({
@@ -584,9 +598,9 @@ export class FindComponent {
         },
         update: (store, mutationResult: any) => {
           // Read the data from our cache for this query.
-          if(this.debug) {
+          //if(this.debug) {
             console.log('FindComponent.component: _deleteBet(): store: ',store,' mutationResult: ',mutationResult);
-          }
+          //}
           const data: any = store.readQuery({
             query: getBetsQuery
           });
