@@ -5,9 +5,11 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class PayoutFormatPipe implements PipeTransform {
 
-  transform(value: any, win: number): any {
+  transform(value: number, win: number): any {
+
+    const v = value.toString().replace(/,/g, "");;
     
-    return win === 0 ? -value : value;
+    return win === 0 ? -v : v;
     
   }
 

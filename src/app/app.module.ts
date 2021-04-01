@@ -10,9 +10,11 @@ import { HttpClientModule } from "@angular/common/http";
 import { FindComponent } from "./find/find.component";
 
 import { PayoutFormatPipe } from './pipes/payout-format/payout-format.pipe';
+import { NoCommaPipe } from './pipes/no-comma/no-comma.pipe';
+
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, FindComponent, PayoutFormatPipe],
+  declarations: [AppComponent, HomeComponent, FindComponent, PayoutFormatPipe, NoCommaPipe],
   imports: [
     BrowserModule,
     AppRoutingModule,

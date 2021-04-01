@@ -95,7 +95,7 @@ const resolvers = {
           bets.push(bet);
           return bet;
         },
-        updateUser: (_, { id, name, balance }) => {
+        updateUser: (_, { id, name, balance }, context, info) => {
             let updatedUser;
             users = users.map(user => {
                 if (user.id === id) {
@@ -111,17 +111,42 @@ const resolvers = {
                 }
             });
             return updatedUser;
+            /* let updatedUser;
+            for(var i = 0; i < users.length; i++){
+                const user = users[i];
+                if (user.id === id) {
+                    updatedUser = {
+                        id: user.id,
+                        name: name !== undefined ? name : user.name,
+                        balance: balance !== undefined ? balance : user.balance
+                    }
+                    users.push(updatedUser);
+                } 
+                else {
+                    users.push(user);
+                }
+            } 
+            return updatedUser; */
         },
-        deleteBet: (_, { id }) => {
+        deleteBet: (_, { id }, context, info) => {
             const betToDelete = bets.find(x => x.id === id);
-
             if(betToDelete){
                 bets = bets.filter(bet => {
                     return bet.id !== betToDelete.id;
                 });
             }
-
             return betToDelete;
+            /* let betToDelete;
+            for(var i = 0; i < bets.length; i++){
+                const bet = bets[i];
+                if(bet.id === id){
+                    betToDelete = bet;
+                }
+                else{
+                    bets.push(bet);
+                }
+            }
+            return betToDelete; */
         }
     },
     User: {
@@ -144,3 +169,32 @@ const server = new GraphQLServer({
     resolvers
 });
 server.start(() => console.log(`Server is running on http://localhost:4000`));
+
+/* server.start(
+    {
+        cors: {
+            credentials: true,
+            origin: ['http://localhost:4200'],
+        },
+    },
+    deets => {
+        console.log(
+            `Server is now running on port http://localhost:${deets.port}`
+        );
+    }
+); */
+
+/* server.start(
+    {
+      cors: {
+        credentials: true,
+        origin: [process.env.FRONTEND_URL],
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        preflightContinue: false,
+        optionsSuccessStatus: 204
+      }
+    },
+    server => {
+      console.log(`Server is running on http://localhost/${server.port}`);
+    }
+); */

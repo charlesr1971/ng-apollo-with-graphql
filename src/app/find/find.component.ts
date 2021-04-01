@@ -9,7 +9,7 @@ import { User } from '../models/user/user.model';
 import { Bet } from '../models/bet/bet.model';
 
 const createBet = gql`
-  mutation CreateBet(
+  mutation createBet(
     $userId: Int!
     $betAmount: Float!
     $chance: Float!
@@ -41,7 +41,7 @@ const getBetsQuery = gql`
 `;
 
 const updateUser = gql`
-  mutation UpdateUser(
+  mutation updateUser(
     $id: Int!
     $name: String!
     $balance: Float!
@@ -75,7 +75,7 @@ const getUserQuery = gql`
 `;
 
 const deleteBet = gql`
-  mutation DeleteBet(
+  mutation deleteBet(
     $id: Int!
   ) {
     deleteBet(id: $id) {
@@ -408,24 +408,33 @@ export class FindComponent {
 
   _createBet(): void {
 
-    if(this.debug) {
+    //if(this.debug) {
       console.log('FindComponent.component: _createBet(): this.betAmount: ',this.betAmount,' this.chance: ',this.chance);
+    //}
+
+    if(isNaN(this.chance) || this.chance == 0){
+      this.chance = 1;
     }
-    const integerPattern1: any = new RegExp('^[0-9]*$','igm');
-    const integerPattern2: any = new RegExp('^[0-9]*$','igm');
-    const floatPattern: any = new RegExp('^[0-9.]*$','igm');
+
+    //if(this.debug) {
+      console.log('FindComponent.component: _createBet(): this.betAmount: ',this.betAmount,' this.chance: ',this.chance);
+    //}
+
+    const integerPattern1: any = new RegExp('^[0-9]+$','igm');
+    const integerPattern2: any = new RegExp('^[0-9]+$','igm');
+    const floatPattern: any = new RegExp('^[0-9.]+$','igm');
 
     const isValidBetAmount: boolean = integerPattern1.test(this.betAmount);
 
-    if(this.debug) {
+    //if(this.debug) {
       console.log('FindComponent.component: _createBet(): isValidBetAmount: ',isValidBetAmount);
-    }
+    //}
 
     const isValidChance: boolean = integerPattern2.test(this.chance);
 
-    if(this.debug) {
+    //if(this.debug) {
       console.log('FindComponent.component: _createBet(): isValidChance: ',isValidChance);
-    }
+    //}
 
     const isValid = isValidChance && isValidBetAmount ? true : false;
 
@@ -446,6 +455,10 @@ export class FindComponent {
       newBalance = parseInt(newBalance);
 
       this.user.balance = newBalance;
+
+      //if(this.debug) {
+        console.log('FindComponent.component: _createBet(): payout: ',payout);
+      //}
       
       this.apollo
         .mutate({

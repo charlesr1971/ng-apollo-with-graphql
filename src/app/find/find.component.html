@@ -92,7 +92,7 @@
       <tbody>
         <tr *ngFor="let betPerUser of betsPerUser">
           <td>{{ betPerUser.id }}</td>
-          <td>{{ betPerUser.betAmount | number: '1.0-2' }}</td>
+          <td>{{ betPerUser.betAmount | number: '1.0-2' | noComma: betPerUser.betAmount  }}</td>
           <td>1/{{ betPerUser.chance }}</td>
           <td>{{ betPerUser.payout | number: '1.0-2' | payoutFormat: betPerUser.win}}</td>
           <td>{{ betPerUser.win }}</td>
