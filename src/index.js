@@ -96,6 +96,28 @@ const resolvers = {
           return bet;
         },
         updateUser: (_, { id, name, balance }, context, info) => {
+
+            /*********************************************
+             
+            there is a bug in GraphQL that throws an error:
+
+            https://github.com/strapi/strapi/issues/2816
+            
+            "message": "Assignment to constant variable."
+
+            The error is caused by the fact that GraphQL
+            thinks that the Array.prototype.map() method 
+            is a mutable operation.
+
+            The routine commented out below is the most
+            efficient way to remove an item from an immutable
+            array. However, due to this bug, the second
+            routine, which uses the Object.assign()
+            method, must be implemented, instead.
+
+            **********************************************/
+
+
             /* let updatedUser;
             users = users.map(user => {
                 if (user.id === id) {
@@ -130,9 +152,10 @@ const resolvers = {
             });
             Object.assign([], users, {index: updatedUser});
             return updatedUser;
-            
+
         },
         deleteBet: (_, { id }, context, info) => {
+
             /*********************************************
              
             there is a bug in GraphQL that throws an error:
@@ -168,6 +191,7 @@ const resolvers = {
                 bets.splice(index,1);
             }
             return betToDelete;
+
         }
     },
     User: {
@@ -190,32 +214,3 @@ const server = new GraphQLServer({
     resolvers
 });
 server.start(() => console.log(`Server is running on http://localhost:4000`));
-
-/* server.start(
-    {
-        cors: {
-            credentials: true,
-            origin: ['http://localhost:4200'],
-        },
-    },
-    deets => {
-        console.log(
-            `Server is now running on port http://localhost:${deets.port}`
-        );
-    }
-); */
-
-/* server.start(
-    {
-      cors: {
-        credentials: true,
-        origin: [process.env.FRONTEND_URL],
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-        preflightContinue: false,
-        optionsSuccessStatus: 204
-      }
-    },
-    server => {
-      console.log(`Server is running on http://localhost/${server.port}`);
-    }
-); */

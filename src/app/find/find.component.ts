@@ -256,9 +256,9 @@ export class FindComponent {
         return true; 
       });
     }
-    //if(this.debug) {
+    if(this.debug) {
       console.log('FindComponent.component: getUserIds(): usersids: ',usersids);
-    //}
+    }
     return usersids.join(',');
   }
 
@@ -425,17 +425,17 @@ export class FindComponent {
 
   _createBet(): void {
 
-    //if(this.debug) {
+    if(this.debug) {
       console.log('FindComponent.component: _createBet(): this.betAmount: ',this.betAmount,' this.chance: ',this.chance);
-    //}
+    }
 
     if(isNaN(this.chance) || this.chance == 0){
       this.chance = 1;
     }
 
-    //if(this.debug) {
+    if(this.debug) {
       console.log('FindComponent.component: _createBet(): this.betAmount: ',this.betAmount,' this.chance: ',this.chance);
-    //}
+    }
 
     const integerPattern1: any = new RegExp('^[0-9]+$','igm');
     const integerPattern2: any = new RegExp('^[0-9]+$','igm');
@@ -443,15 +443,15 @@ export class FindComponent {
 
     const isValidBetAmount: boolean = integerPattern1.test(this.betAmount);
 
-    //if(this.debug) {
+    if(this.debug) {
       console.log('FindComponent.component: _createBet(): isValidBetAmount: ',isValidBetAmount);
-    //}
+    }
 
     const isValidChance: boolean = integerPattern2.test(this.chance);
 
-    //if(this.debug) {
+    if(this.debug) {
       console.log('FindComponent.component: _createBet(): isValidChance: ',isValidChance);
-    //}
+    }
 
     const isValid = isValidChance && isValidBetAmount ? true : false;
 
@@ -473,9 +473,9 @@ export class FindComponent {
 
       this.user.balance = newBalance;
 
-      //if(this.debug) {
+      if(this.debug) {
         console.log('FindComponent.component: _createBet(): payout: ',payout);
-      //}
+      }
       
       this.apollo
         .mutate({
@@ -534,21 +534,20 @@ export class FindComponent {
               query: getUsersQuery
             });
             // Add the user from the mutation to the list of users in the cache.
-            let updatedUser;
             let index = 0;
             const user = data.users.filter( (user, idx: number) => {
               if(user.id === this.userId){
                 index = idx;
-                updatedUser = user;
               }
               return user.id === this.userId;
             })
             if(this.debug) {
               console.log('FindComponent.component: updateUser(): user: ',user);
             }
-            data.users = [...data.users, mutationResult.data.createUser];
-            Object.assign([], data.users, {[index]: updatedUser});
-            //data.users = newArray;
+            Object.assign([], data.users, {[index]: mutationResult.data.updatedUser});
+            if(this.debug) {
+              console.log('FindComponent.component: updateUser(): data.users: ',data.users);
+            }
             // Write the data back to the cache.
             store.writeQuery({
               query: getUsersQuery,
@@ -561,6 +560,7 @@ export class FindComponent {
             if(this.debug) {
               console.log('FindComponent.component: updateUser(): data: ',data);
             }
+            this.getUserList();
           },
           error => {
               console.log("there was an error sending the query", error);
@@ -576,19 +576,9 @@ export class FindComponent {
 
   _deleteBet(id: number): void {
 
-    //if(this.debug) {
+    if(this.debug) {
       console.log('FindComponent.component: _deleteBet(): id: ',id);
-    //}
-
-    /* this.bets = this.bets.filter( (bet: Bet) => {
-      return bet.id !== id
-    });
-
-    //if(this.debug) {
-      console.log('FindComponent.component: _deleteBet(): this.bets: ',this.bets);
-    //}
-
-    this.getBetsPerUser(this.userId); */
+    }
 
     this.apollo
       .mutate({
@@ -598,9 +588,9 @@ export class FindComponent {
         },
         update: (store, mutationResult: any) => {
           // Read the data from our cache for this query.
-          //if(this.debug) {
+          if(this.debug) {
             console.log('FindComponent.component: _deleteBet(): store: ',store,' mutationResult: ',mutationResult);
-          //}
+          }
           const data: any = store.readQuery({
             query: getBetsQuery
           });
