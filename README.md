@@ -1,6 +1,21 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+# Ancient Gaming Test
+
+## Environment:
+
+* Angular 8
+* apollo-angular v1.8
+
+## Instructions
+
+Please start the **graphql-yoga** server by opening the command prompt and running:
+
+```
+node src/index.js
+```
+
+This will run on http://localhost:4000
 
 ### What is this repository for? ###
 
