@@ -18,64 +18,35 @@ export class HomeComponent implements OnInit {
   constructor(private apollo: Apollo) {}
 
   ngOnInit() {
-
-    /* this.apollo
-      .query<any>({
-        query: gql`
-          {
-            books {
-              title
-              authors {
-                name
-              }
-            }
-          }
-        `
-      })
-      .subscribe(
-        ({ data, loading }) => {
-          this.books = data && data.books;
-          this.loading = loading;
-        },
-        error => {
-          this.loading = false;
-          this.error = error;
-        }
-      ); */
-
-      this.getUserList();
-
+    this.getUserList();
   }
 
   getUserList(): void {
 
     this.error = "";
     this.loading = true;
+
     this.apollo
-      .query<any>({
-        query: gql`
-          {
-            users{
-              name 
-              balance 
-            }
+    .query<any>({
+      query: gql`
+        {
+          users{
+            name 
+            balance 
           }
-          
-        `
-      })
-      .subscribe(({ data, loading }) => {
-        this.users = data && data.users;
-        this.loading = loading;
-      },
-      error => {
-        this.loading = false;
-        this.error = error;
-      });
+        }
+        
+      `
+    })
+    .subscribe(({ data, loading }) => {
+      this.users = data && data.users;
+      this.loading = loading;
+    },
+    error => {
+      this.loading = false;
+      this.error = error;
+    });
 
   }
-
-  
-
-
 
 }
