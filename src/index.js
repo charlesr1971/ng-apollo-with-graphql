@@ -112,7 +112,7 @@ const resolvers = {
             The routine commented out below is the most
             efficient way to remove an item from an immutable
             array. However, due to this bug, the second
-            routine, which uses the Object.assign()
+            routine, which uses the Array.prototype.splice()
             method, must be implemented, instead.
 
             **********************************************/
@@ -150,7 +150,7 @@ const resolvers = {
                     return user
                 }
             });
-            Object.assign([], users, {index: updatedUser});
+            users.splice(index,1,updatedUser);
             return updatedUser;
 
         },

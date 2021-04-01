@@ -325,9 +325,9 @@ export class FindComponent {
           this.users = data.users;
           this.usersFinished.next(true);
           this.loading = loading;
-          //if(this.debug) {
+          if(this.debug) {
             console.log('FindComponent.component: getUserList(): data.users: ',data.users);
-          //}
+          }
         }
         else{
           this.error = "Users do not exist";
@@ -536,15 +536,15 @@ export class FindComponent {
           update: (store, mutationResult: any) => {
             // Read the data from our cache for this query.
             if(this.debug) {
-              console.log('FindComponent.component: updateUser(): store: ',store,' mutationResult: ',mutationResult);
+              console.log('FindComponent.component: _createBet(): store: ',store,' mutationResult: ',mutationResult);
             }
             try{
               const data: any = store.readQuery({
                 query: getUsersQuery
               });
-              //if(this.debug) {
-                console.log('FindComponent.component: updateUser(): data: ',data);
-              //}
+              if(this.debug) {
+                console.log('FindComponent.component: _createBet(): data: ',data);
+              }
               // Update the user from the mutation to the list of users in the cache.
               let index = 0;
               const user = data.users.filter( (user, idx: number) => {
@@ -554,12 +554,12 @@ export class FindComponent {
                 return user.id === this.userId;
               })
               if(this.debug) {
-                console.log('FindComponent.component: updateUser(): user: ',user);
+                console.log('FindComponent.component: _createBet(): user: ',user);
               }
               Object.assign([], data.users, {[index]: mutationResult.data.updatedUser});
-              //if(this.debug) {
-                console.log('FindComponent.component: updateUser(): data.users: ',data.users);
-              //}
+              if(this.debug) {
+                console.log('FindComponent.component: _createBet(): data.users: ',data.users);
+              }
               // Write the data back to the cache.
               store.writeQuery({
                 query: getUsersQuery,
@@ -574,7 +574,7 @@ export class FindComponent {
         .subscribe(
           ({ data }) => {
             if(this.debug) {
-              console.log('FindComponent.component: updateUser(): data: ',data);
+              console.log('FindComponent.component: _createBet(): data: ',data);
             }
             this.getUserList();
           },
@@ -594,6 +594,16 @@ export class FindComponent {
 
     if(this.debug) {
       console.log('FindComponent.component: _deleteBet(): id: ',id);
+    }
+
+    const _bets = this.bets.filter( (bet, idx: number) => {
+      return bet.id === id;
+    });
+
+    let _bet: any = null;
+
+    if(_bets.length === 1){
+      _bet = _bets[0];
     }
 
     this.apollo
@@ -638,6 +648,80 @@ export class FindComponent {
           console.log("there was an error sending the query", error);
         }
       );
+
+      if(_bet){
+
+        const payout: any = Number(_bet.payout);
+
+        const balance: number = Number(this.user.balance);
+
+        let newBalance: any = _bet.win === 0 ? (balance + payout) : (balance - payout);
+        newBalance = parseInt(newBalance);
+
+        this.user.balance = newBalance;
+
+        if(this.debug) {
+          console.log('FindComponent.component: _deleteBet(): newBalance: ',newBalance);
+        }
+
+        this.apollo
+          .mutate({
+            mutation: updateUser,
+            variables: {
+              id: this.userId,
+              name: this.user.name,
+              balance: newBalance
+            },
+            update: (store, mutationResult: any) => {
+              // Read the data from our cache for this query.
+              if(this.debug) {
+                console.log('FindComponent.component: _deleteBet(): store: ',store,' mutationResult: ',mutationResult);
+              }
+              try{
+                const data: any = store.readQuery({
+                  query: getUsersQuery
+                });
+                if(this.debug) {
+                  console.log('FindComponent.component: _deleteBet(): data: ',data);
+                }
+                // Update the user from the mutation to the list of users in the cache.
+                let index = 0;
+                const user = data.users.filter( (user, idx: number) => {
+                  if(user.id === this.userId){
+                    index = idx;
+                  }
+                  return user.id === this.userId;
+                })
+                if(this.debug) {
+                  console.log('FindComponent.component: _deleteBet(): user: ',user);
+                }
+                Object.assign([], data.users, {[index]: mutationResult.data.updatedUser});
+                if(this.debug) {
+                  console.log('FindComponent.component: _deleteBet(): data.users: ',data.users);
+                }
+                // Write the data back to the cache.
+                store.writeQuery({
+                  query: getUsersQuery,
+                  data
+                });
+              }
+              catch(e: any){
+                
+              }
+            }
+          })
+          .subscribe(
+            ({ data }) => {
+              if(this.debug) {
+                console.log('FindComponent.component: _deleteBet(): data: ',data);
+              }
+              this.getUserList();
+            },
+            error => {
+                console.log("there was an error sending the query", error);
+            }
+          );
+      }
 
   }
 
