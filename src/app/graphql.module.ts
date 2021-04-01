@@ -8,9 +8,6 @@ export function createApollo(httpLink: HttpLink) {
   return {
     link: httpLink.create({uri}),
     cache: new InMemoryCache(),
-    fetchOptions: {
-      mode: 'no-cors',
-    },
   };
 }
 

@@ -135,7 +135,7 @@ const resolvers = {
             return updatedUser; */
 
             let updatedUser;
-            let index = 0;
+            var index = 0;
             users.map( (user, idx) => {
                 if (user.id === id) {
                     index = idx;

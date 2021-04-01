@@ -325,6 +325,9 @@ export class FindComponent {
           this.users = data.users;
           this.usersFinished.next(true);
           this.loading = loading;
+          //if(this.debug) {
+            console.log('FindComponent.component: getUserList(): data.users: ',data.users);
+          //}
         }
         else{
           this.error = "Users do not exist";
@@ -493,16 +496,21 @@ export class FindComponent {
             if(this.debug) {
               console.log('FindComponent.component: _createBet(): store: ',store,' mutationResult: ',mutationResult);
             }
-            const data: any = store.readQuery({
-              query: getBetsQuery
-            });
-            // Add the bet from the mutation to the list of bets in the cache.
-            data.bets = [...data.bets, mutationResult.data.createBet];
-            // Write the data back to the cache.
-            store.writeQuery({
-              query: getBetsQuery,
-              data
-            });
+            try{
+              const data: any = store.readQuery({
+                query: getBetsQuery
+              });
+              // Add the bet from the mutation to the list of bets in the cache.
+              data.bets = [...data.bets, mutationResult.data.createBet];
+              // Write the data back to the cache.
+              store.writeQuery({
+                query: getBetsQuery,
+                data
+              });
+            }
+            catch(e: any){
+
+            }
           }
         })
         .subscribe(
@@ -530,29 +538,37 @@ export class FindComponent {
             if(this.debug) {
               console.log('FindComponent.component: updateUser(): store: ',store,' mutationResult: ',mutationResult);
             }
-            const data: any = store.readQuery({
-              query: getUsersQuery
-            });
-            // Add the user from the mutation to the list of users in the cache.
-            let index = 0;
-            const user = data.users.filter( (user, idx: number) => {
-              if(user.id === this.userId){
-                index = idx;
+            try{
+              const data: any = store.readQuery({
+                query: getUsersQuery
+              });
+              //if(this.debug) {
+                console.log('FindComponent.component: updateUser(): data: ',data);
+              //}
+              // Update the user from the mutation to the list of users in the cache.
+              let index = 0;
+              const user = data.users.filter( (user, idx: number) => {
+                if(user.id === this.userId){
+                  index = idx;
+                }
+                return user.id === this.userId;
+              })
+              if(this.debug) {
+                console.log('FindComponent.component: updateUser(): user: ',user);
               }
-              return user.id === this.userId;
-            })
-            if(this.debug) {
-              console.log('FindComponent.component: updateUser(): user: ',user);
+              Object.assign([], data.users, {[index]: mutationResult.data.updatedUser});
+              //if(this.debug) {
+                console.log('FindComponent.component: updateUser(): data.users: ',data.users);
+              //}
+              // Write the data back to the cache.
+              store.writeQuery({
+                query: getUsersQuery,
+                data
+              });
             }
-            Object.assign([], data.users, {[index]: mutationResult.data.updatedUser});
-            if(this.debug) {
-              console.log('FindComponent.component: updateUser(): data.users: ',data.users);
+            catch(e: any){
+              
             }
-            // Write the data back to the cache.
-            store.writeQuery({
-              query: getUsersQuery,
-              data
-            });
           }
         })
         .subscribe(
@@ -591,19 +607,24 @@ export class FindComponent {
           if(this.debug) {
             console.log('FindComponent.component: _deleteBet(): store: ',store,' mutationResult: ',mutationResult);
           }
-          const data: any = store.readQuery({
-            query: getBetsQuery
-          });
-          const bets = data.bets.filter( (bet, idx: number) => {
-            return bet.id !== id;
-          })
-          // Add the bet from the mutation to the list of bets in the cache.
-          data.bets = [...bets];
-          // Write the data back to the cache.
-          store.writeQuery({
-            query: getBetsQuery,
-            data
-          });
+          try{
+            const data: any = store.readQuery({
+              query: getBetsQuery
+            });
+            const bets = data.bets.filter( (bet, idx: number) => {
+              return bet.id !== id;
+            })
+            // Delete the bet from the mutation to the list of bets in the cache.
+            data.bets = [...bets];
+            // Write the data back to the cache.
+            store.writeQuery({
+              query: getBetsQuery,
+              data
+            });
+          }
+          catch(e: any){
+            
+          }
         }
       })
       .subscribe(
