@@ -36,6 +36,19 @@ button.delete {
 
 @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
 
+    .table {
+        table-layout: fixed;
+    }
+
+    .container {
+        padding-right: 30px;
+        padding-left: 30px;
+    }
+
+    .form-group {
+        width: 100%;
+    }
+
     .form-validation {
         width: 100%;
     }
@@ -44,6 +57,20 @@ button.delete {
 }
 
 @media only screen and (min-device-width : 481px) and (max-device-width : 667px) {
+
+    .table {
+        table-layout: fixed;
+    }
+
+    .container {
+        padding-right: 30px;
+        padding-left: 30px;
+    }
+
+    .form-group {
+        width: 100%;
+    }
+
 
     .form-validation {
         width: 100%;

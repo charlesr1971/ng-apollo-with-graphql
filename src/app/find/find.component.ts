@@ -458,7 +458,7 @@ export class FindComponent {
               data
             });
           }
-          catch(e: any){
+          catch(e){
 
           }
         }
@@ -501,7 +501,7 @@ export class FindComponent {
               data
             });
           }
-          catch(e: any){
+          catch(e){
             
           }
         }
@@ -556,7 +556,7 @@ export class FindComponent {
             data
           });
         }
-        catch(e: any){
+        catch(e){
           
         }
       }
@@ -608,7 +608,7 @@ export class FindComponent {
               data
             });
           }
-          catch(e: any){
+          catch(e){
             
           }
         }
