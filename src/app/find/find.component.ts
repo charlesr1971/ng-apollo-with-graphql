@@ -191,11 +191,11 @@ export class FindComponent {
     ]);
     this.createBetAmountInput = new FormControl('', [
       Validators.required,
-      Validators.pattern("^[0-9]*$")
+      Validators.pattern("^[0-9.]*$")
     ]);
     this.createChanceInput = new FormControl('', [
       Validators.required,
-      Validators.pattern("^[0-9]*$")
+      Validators.pattern("^[0-9.]*$")
     ]);
 
   }
@@ -276,7 +276,7 @@ export class FindComponent {
       if (data.user){
         this.user = data.user;
         const newBalance: any = this.user.balance;
-        this.user.balance = parseInt(newBalance);
+        this.user.balance = parseFloat(newBalance);
         this.getBetList();
         this.userFinished.next(true);
       }
@@ -410,8 +410,8 @@ export class FindComponent {
       this.chance = 1;
     }
 
-    const integerPattern1: any = new RegExp('^[0-9]+$','igm');
-    const integerPattern2: any = new RegExp('^[0-9]+$','igm');
+    const integerPattern1: any = new RegExp('^[0-9.]+$','igm');
+    const integerPattern2: any = new RegExp('^[0-9.]+$','igm');
     const isValidBetAmount: boolean = integerPattern1.test(this.betAmount);
     const isValidChance: boolean = integerPattern2.test(this.chance);
     const isValid = isValidChance && isValidBetAmount ? true : false;
@@ -422,14 +422,14 @@ export class FindComponent {
 
       const betAmount: any = Number(this.betAmount);
       const chance: any = Number(this.chance);
-      this.betAmount = parseInt(betAmount);
-      this.chance = parseInt(chance);
+      this.betAmount = parseFloat(betAmount);
+      this.chance = parseFloat(chance);
       const payout: any = this.betAmount * (1/this.chance);
       const win = Math.round(Math.random());
       const balance: number = Number(this.user.balance);
 
       let newBalance: any = win === 0 ? (balance - payout) : (balance + payout);
-      newBalance = parseInt(newBalance);
+      newBalance = parseFloat(newBalance);
 
       this.user.balance = newBalance;
 
@@ -517,7 +517,7 @@ export class FindComponent {
 
     }
     else{
-      this.formValidationMessage = 'Please make sure the Bet Amount and Chance fields are both integers';
+      this.formValidationMessage = 'Please make sure the Bet Amount and Chance fields are both integers or floats';
     }
 
   }
@@ -575,7 +575,7 @@ export class FindComponent {
       const payout: any = Number(_bet.payout);
       const balance: number = Number(this.user.balance);
       let newBalance: any = _bet.win === 0 ? (balance + payout) : (balance - payout);
-      newBalance = parseInt(newBalance);
+      newBalance = parseFloat(newBalance);
 
       this.user.balance = newBalance;
 

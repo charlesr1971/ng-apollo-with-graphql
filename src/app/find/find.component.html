@@ -28,7 +28,7 @@
     <div class="form-group mx-sm-3 mb-2" style="margin-left:0px !important;">
       <div style="width:100%;">
         <div class="form-control-feedback" *ngIf="createBetAmountInput.errors && (createBetAmountInput.dirty || createBetAmountInput.touched)">
-          <p *ngIf="createBetAmountInput.errors.pattern" class="text-danger">Integer Only</p>
+          <p *ngIf="createBetAmountInput.errors.pattern" class="text-danger">Integer or Float Only</p>
         </div>
         <label for="createBetAmountInput">Enter Bet Amount</label>
         <input 
@@ -44,7 +44,7 @@
       </div>
       <div style="width:100%;">
         <div class="form-control-feedback" *ngIf="createChanceInput.errors && (createChanceInput.dirty || createChanceInput.touched)">
-          <p *ngIf="createChanceInput.errors.pattern" class="text-danger">Integer Only</p>
+          <p *ngIf="createChanceInput.errors.pattern" class="text-danger">Integer or Float Only</p>
         </div>
         <label for="createChanceInput">Enter Chance</label>
         <input 
@@ -77,7 +77,7 @@
     <b>Name:</b><span> {{ user.name }}</span>
   </p>
   <p>
-    <b>Balance:</b><span> {{ user.balance }}</span>
+    <b>Balance:</b><span> {{ user.balance | number: '1.0-2' }}</span>
   </p>
   <div *ngIf="betsPerUser && betsPerUser.length > 0 ">
     <table class="table">
