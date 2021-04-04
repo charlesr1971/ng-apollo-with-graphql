@@ -98,7 +98,7 @@
           <td>1/{{ betPerUser.chance }}</td>
           <td>{{ betPerUser.payout | number: '1.0-2' | payoutFormat: betPerUser.win}}</td>
           <td>{{ betPerUser.win }}</td>
-          <td><button class="delete" (click)="_deleteBet(betPerUser.id)" type="button" *ngIf="!(isRemovable(betPerUser.id,user.id))">X</button></td>
+          <td><button class="delete" (click)="_deleteBet(betPerUser.id)" type="button" *ngIf="!(isDefault(betPerUser.id,user.id))">X</button></td>
         </tr>
       </tbody>
     </table>

@@ -633,7 +633,7 @@ export class FindComponent {
 
   }
 
-  isRemovable(betId: number, userId: number): boolean {
+  isDefault(betId: number, userId: number): boolean {
 
     const found = this.defaultBets[userId].find( (id: number) => id === betId);
     const result = found !== undefined ? true : false;
