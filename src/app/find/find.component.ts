@@ -121,6 +121,13 @@ export class FindComponent {
   betAmount: number = 0;
   chance: number = 0;
   userIds: string = '';
+  defaultBets: any = 
+    {
+      1: [1],
+      2: [2,3],
+      3: [0]
+    }
+  ;
   loading = false;
   error: string;
 
@@ -623,6 +630,15 @@ export class FindComponent {
       );
 
     }
+
+  }
+
+  isRemovable(betId: number, userId: number): boolean {
+
+    const found = this.defaultBets[userId].find( (id: number) => id === betId);
+    const result = found !== undefined ? true : false;
+
+    return result;
 
   }
 
