@@ -2,6 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { Observable, Subscription, Subject } from 'rxjs';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { Apollo } from "apollo-angular";
 import gql from "graphql-tag";
 
@@ -112,6 +114,7 @@ export class FindComponent {
   createChanceInput: FormControl;
 
   userId: number = 1;
+  userIdFromRoute: any = 0;
   user: User;
   users: Array<User>;
   betId: number = 1;
@@ -135,13 +138,30 @@ export class FindComponent {
 
   count: number = 3;
 
-  constructor(private apollo: Apollo) {
+  constructor(private apollo: Apollo,
+    private route: ActivatedRoute,
+    private router: Router,
+    private location: Location) {
 
     this.userFinished.next(false);
     this.usersFinished.next(false);
     this.betFinished.next(false);
     this.betsFinished.next(false);
     this.betsPerUserFinished.next(false);
+
+    this.userIdFromRoute = this.route.snapshot.paramMap.get('id');
+
+    this.route.queryParams.subscribe(params => {
+      if(params['browserRefresh']) {
+        this.location.replaceState('find/' + this.route.snapshot.paramMap.get('id'));
+      }
+    });
+
+    if(this.debug) {
+      console.log('FindComponent.component: this.userIdFromRoute: ', this.userIdFromRoute);
+    } 
+
+    this.parseUserId();
 
   }
 
@@ -639,6 +659,13 @@ export class FindComponent {
     const result = found !== undefined ? true : false;
 
     return result;
+
+  }
+
+  parseUserId():void {
+
+    const userid = this.userIdFromRoute > 0 ? this.userIdFromRoute : this.userId;
+    this.userId = userid === 0 ? 1 : parseInt(userid);
 
   }
 

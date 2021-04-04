@@ -16,7 +16,7 @@
   </thead>
   <tbody>
     <tr *ngFor="let user of users">
-      <th scope="row">{{ user.name }}</th>
+      <th scope="row"><a class="read-more-link" routerLink="find/{{ user.id }}">{{ user.name }}</a></th>
       <td>{{ user.balance }}</td>
     </tr>
   </tbody>

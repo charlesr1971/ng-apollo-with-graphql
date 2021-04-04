@@ -14,7 +14,7 @@
         class="form-control"
         name="findUserIdInput"
         formControlName="findUserIdInput" 
-        value="{{userId}}"
+        value="{{ userId }}"
       />
     </div>
   </div>
@@ -71,7 +71,7 @@
 
 <div>{{ error }}</div>
 
-<div *ngIf="!loading">
+<div *ngIf="user">
   <hr />
   <p>
     <b>Name:</b><span> {{ user.name }}</span>

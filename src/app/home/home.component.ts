@@ -1,4 +1,5 @@
 import { Component, OnInit } from "@angular/core";
+import { Router } from '@angular/router';
 import { Apollo } from "apollo-angular";
 import gql from "graphql-tag";
 
@@ -31,6 +32,7 @@ export class HomeComponent implements OnInit {
       query: gql`
         {
           users{
+            id
             name 
             balance 
           }
