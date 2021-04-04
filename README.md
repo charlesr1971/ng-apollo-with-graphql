@@ -1,6 +1,6 @@
 # README #
 
-# Angular Apollo with GraphQL
+# Angular Apollo + GraphQL
 
 ## Environment:
 

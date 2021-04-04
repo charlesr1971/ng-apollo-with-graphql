@@ -29,3 +29,34 @@
     padding-right: .5rem;
     padding-left: .5rem;
 }
+
+/* media queries */
+
+/* tablets */
+
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 1) {
+
+
+}
+
+/* smart phones */
+
+@media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+
+    .navbar-brand {
+        width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+}
+
+@media only screen and (min-device-width : 481px) and (max-device-width : 667px) {
+
+    .navbar-brand {
+        width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+}
