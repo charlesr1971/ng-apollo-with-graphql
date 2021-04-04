@@ -1,6 +1,6 @@
 # README #
 
-# Ancient Gaming Test
+# Angular Apollo with GraphQL
 
 ## Environment:
 
