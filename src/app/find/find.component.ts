@@ -1,10 +1,10 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Observable, Subscription, Subject } from 'rxjs';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { Apollo } from "apollo-angular";
+import { Apollo, QueryRef } from "apollo-angular";
 import gql from "graphql-tag";
 
 import { User } from '../models/user/user.model';
@@ -32,6 +32,19 @@ const createBet = gql`
 const getBetsQuery = gql`
   {
     bets {
+      id
+      userId
+      betAmount
+      chance
+      payout
+      win
+    }
+  }
+`;
+
+const getBetQuery = gql`
+  query($id: Int!) {
+    bet(id: $id) {
       id
       userId
       betAmount
@@ -91,12 +104,13 @@ const deleteBet = gql`
   }
 `;
 
+
 @Component({
   selector: "app-find",
   templateUrl: "./find.component.html",
   styleUrls: ["./find.component.css"]
 })
-export class FindComponent {
+export class FindComponent implements OnInit, OnDestroy {
 
   debug: boolean = false;
 
@@ -137,6 +151,13 @@ export class FindComponent {
   formValidationMessage: string = '';
 
   count: number = 3;
+  payoutCount: number = 0;
+  betAmountCount: number = 0;
+
+
+  betsQuery: QueryRef<any>;
+  betsQuerySubscription: Subscription;
+
 
   constructor(private apollo: Apollo,
     private route: ActivatedRoute,
@@ -193,6 +214,48 @@ export class FindComponent {
       if(finished){
         this.betsFinished.next(false);
         this.getBetsPerUser(this.userId);
+      }
+    });
+
+    this.betsQuery = this.apollo.watchQuery<any>({
+      query: getBetsQuery
+    })
+
+    this.betsQuerySubscription = this.betsQuery.valueChanges.subscribe(({ data, loading }) => {
+      if(this.debug) {
+        console.log('FindComponent.component: this.betsQuerySubscription: data: ', data);
+      } 
+      if(this.bets){
+        const betsPayoutCount = data.bets.filter( (bet: Bet) => {
+          return this.isDefault(bet.id,bet.userId) === false;
+        });
+        const payoutCountArray = [];
+        betsPayoutCount.map((bet: Bet) => {
+          const sum1 = bet.payout;
+          const sum2 = -bet.payout;
+          bet.win === 1 ? payoutCountArray.push(sum1) : payoutCountArray.push(sum2);
+          return true;
+        });
+        this.payoutCount = payoutCountArray.reduce((accumulator: number, value: number) => {
+          const sum = accumulator + value;
+          return sum 
+        }, 0);
+        const betsBetAmount = data.bets.filter( (bet: Bet) => {
+          return this.isDefault(bet.id,bet.userId) === false;
+        });
+        this.betAmountCount = betsBetAmount.reduce((accumulator: number, bet: Bet) => {
+          const acc: any = Number(accumulator);
+          const betAmount: any = Number(bet.betAmount);
+          const sum1: any = parseFloat(acc + betAmount);
+          return sum1
+        }, 0);
+        //if(this.debug) {
+          console.log('FindComponent.component: this.betsQuerySubscription: this.payoutCount: ', this.payoutCount,' this.betAmountCount: ',this.betAmountCount);
+        //} 
+        const params = {
+          payoutCount: this.payoutCount,
+          betAmountCount: this.betAmountCount
+        }
       }
     });
 
@@ -521,7 +584,10 @@ export class FindComponent {
               }
               return user.id === this.userId;
             })
-            Object.assign([], data.users, {[index]: mutationResult.data.updatedUser});
+            //if(this.debug) {
+              console.log('FindComponent.component: _createBet(): updateUser: mutationResult: ', mutationResult);
+            //} 
+            Object.assign([], data.users, {[index]: mutationResult.data.updateUser});
             // Write the data back to the cache.
             store.writeQuery({
               query: getUsersQuery,
@@ -653,6 +719,7 @@ export class FindComponent {
 
   }
 
+
   isDefault(betId: number, userId: number): boolean {
 
     const found = this.defaultBets[userId].find( (id: number) => id === betId);
@@ -667,6 +734,10 @@ export class FindComponent {
     const userid = this.userIdFromRoute > 0 ? this.userIdFromRoute : this.userId;
     this.userId = userid === 0 ? 1 : parseInt(userid);
 
+  }
+
+  ngOnDestroy() {
+    this.betsQuerySubscription.unsubscribe();
   }
 
 

@@ -6,7 +6,7 @@ export class Bet {
     betAmount: number;
     chance: number;
     payout: number;
-    win: boolean;
+    win: number;
 
     constructor(obj?: any) {
 
@@ -15,7 +15,7 @@ export class Bet {
         this.betAmount = obj && obj.betAmount || 0;
         this.chance = obj && obj.chance || 0;
         this.payout = obj && obj.payout || 0;
-        this.win = obj && obj.win || false;
+        this.win = obj && obj.win || 0;
 
 
     }
