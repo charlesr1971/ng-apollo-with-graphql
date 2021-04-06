@@ -104,6 +104,45 @@ const deleteBet = gql`
   }
 `;
 
+const getCountersQuery = gql`
+  {
+    counters {
+      id
+      payoutCount
+      betAmountCount
+    }
+  }
+`;
+
+const updateCounter = gql`
+  mutation updateCounter(
+    $id: Int!
+    $payoutCount: Float!
+    $betAmountCount: Float!
+  ) {
+    updateCounter(id: $id, payoutCount: $payoutCount, betAmountCount: $betAmountCount) {
+      id
+      payoutCount
+      betAmountCount
+    }
+  }
+`;
+
+const COUNTERS_SUBSCRIPTION = gql`
+    subscription counterSubscription(
+        $id: Int!
+        $payoutCount: Float!
+        $betAmountCount: Float!
+      ){
+      counterSubscription(id: $id, payoutCount: $payoutCount, betAmountCount: $betAmountCount){
+        id
+        payoutCount
+        betAmountCount
+      }
+    }
+`;
+
+
 
 @Component({
   selector: "app-find",
@@ -119,6 +158,7 @@ export class FindComponent implements OnInit, OnDestroy {
   betFinished: Subject<any> = new Subject<any>();
   betsFinished: Subject<any> = new Subject<any>();
   betsPerUserFinished: Subject<any> = new Subject<any>();
+  countersFinished: Subject<any> = new Subject<any>();
 
   findForm: FormGroup;
   findUserIdInput: FormControl;
@@ -153,10 +193,19 @@ export class FindComponent implements OnInit, OnDestroy {
   count: number = 3;
   payoutCount: number = 0;
   betAmountCount: number = 0;
+  ws_payoutCount: number = 0;
+  ws_betAmountCount: number = 0;
+  counters: any = [];
 
 
   betsQuery: QueryRef<any>;
   betsQuerySubscription: Subscription;
+
+  _counters: Observable<any>;
+  countersQuery: QueryRef<any>;
+  countersQuerySubscription: Subscription;
+
+  init: boolean = true;
 
 
   constructor(private apollo: Apollo,
@@ -169,6 +218,7 @@ export class FindComponent implements OnInit, OnDestroy {
     this.betFinished.next(false);
     this.betsFinished.next(false);
     this.betsPerUserFinished.next(false);
+    this.countersFinished.next(false);
 
     this.userIdFromRoute = this.route.snapshot.paramMap.get('id');
 
@@ -193,6 +243,7 @@ export class FindComponent implements OnInit, OnDestroy {
     this.monitorFormsValueChanges();
     this.getUser();
     this.getUserList();
+    this.getCounterList();
 
     this.userFinished.subscribe( (finished) => {
       if(finished){
@@ -214,6 +265,19 @@ export class FindComponent implements OnInit, OnDestroy {
       if(finished){
         this.betsFinished.next(false);
         this.getBetsPerUser(this.userId);
+
+        if(this.init){
+          const data = {
+            bets: this.bets
+          }
+          const countData = this.createCounts(data);
+          const payoutCount = countData['payoutCount'];
+          const betAmountCount = countData['betAmountCount'];
+          this.ws_payoutCount = payoutCount;
+          this.ws_betAmountCount = betAmountCount;
+          this.init= false;
+        }
+
       }
     });
 
@@ -226,39 +290,134 @@ export class FindComponent implements OnInit, OnDestroy {
         console.log('FindComponent.component: this.betsQuerySubscription: data: ', data);
       } 
       if(this.bets){
-        const betsPayoutCount = data.bets.filter( (bet: Bet) => {
-          return this.isDefault(bet.id,bet.userId) === false;
-        });
-        const payoutCountArray = [];
-        betsPayoutCount.map((bet: Bet) => {
-          const sum1 = bet.payout;
-          const sum2 = -bet.payout;
-          bet.win === 1 ? payoutCountArray.push(sum1) : payoutCountArray.push(sum2);
-          return true;
-        });
-        this.payoutCount = payoutCountArray.reduce((accumulator: number, value: number) => {
-          const sum = accumulator + value;
-          return sum 
-        }, 0);
-        const betsBetAmount = data.bets.filter( (bet: Bet) => {
-          return this.isDefault(bet.id,bet.userId) === false;
-        });
-        this.betAmountCount = betsBetAmount.reduce((accumulator: number, bet: Bet) => {
-          const acc: any = Number(accumulator);
-          const betAmount: any = Number(bet.betAmount);
-          const sum1: any = parseFloat(acc + betAmount);
-          return sum1
-        }, 0);
-        //if(this.debug) {
-          console.log('FindComponent.component: this.betsQuerySubscription: this.payoutCount: ', this.payoutCount,' this.betAmountCount: ',this.betAmountCount);
-        //} 
+
+        const countData = this.createCounts(data);
+        const payoutCount = countData['payoutCount'];
+        const betAmountCount = countData['betAmountCount'];
+
+        this.apollo
+        .mutate({
+          mutation: updateCounter,
+          variables: {
+            id: 1,
+            payoutCount: parseFloat(payoutCount),
+            betAmountCount: parseFloat(betAmountCount)
+          },
+          update: (store, mutationResult: any) => {
+            // Read the data from our cache for this query.
+            try{
+              const data: any = store.readQuery({
+                query: getCountersQuery
+              });
+              if(this.debug) {
+                console.log('FindComponent.component: this.betsQuerySubscription: updateCounter: mutationResult: ', mutationResult,' data: ',data,' this.payoutCount: ',this.payoutCount,' this.betAmountCount: ',this.betAmountCount);
+              } 
+              // Update the counter from the mutation to the list of counters in the cache.
+              Object.assign([], data.counters, {[0]: mutationResult.data.updateCounter});
+              // Write the data back to the cache.
+              store.writeQuery({
+                query: getCountersQuery,
+                data
+              });
+            }
+            catch(e){
+              
+            }
+          }
+        })
+        .subscribe(
+          ({ data }) => {
+            
+          },
+          error => {
+              console.log("there was an error sending the query", error);
+          }
+        );
+
         const params = {
-          payoutCount: this.payoutCount,
-          betAmountCount: this.betAmountCount
+          payoutCount: payoutCount,
+          betAmountCount: betAmountCount
         }
+
+        this.subscribeToNewCounters(params);
+
       }
     });
 
+    const params = {
+      payoutCount: 0,
+      betAmountCount: 0
+    }
+
+    this.subscribeToNewCounters(params);
+
+  }
+
+  createCounts(data: any): any {
+    const countData = {
+      payoutCount: 0,
+      betAmountCount: 0
+    };
+    if(this.bets){
+      const betsPayoutCount = data.bets.filter( (bet: Bet) => {
+        return this.isDefault(bet.id,bet.userId) === false;
+      });
+      const payoutCountArray = [];
+      betsPayoutCount.map((bet: Bet) => {
+        const sum1 = bet.payout;
+        const sum2 = -bet.payout;
+        bet.win === 1 ? payoutCountArray.push(sum1) : payoutCountArray.push(sum2);
+        return true;
+      });
+      this.payoutCount = payoutCountArray.reduce((accumulator: number, value: number) => {
+        const sum = accumulator + value;
+        return sum 
+      }, 0);
+      const betsBetAmount = data.bets.filter( (bet: Bet) => {
+        return this.isDefault(bet.id,bet.userId) === false;
+      });
+      this.betAmountCount = betsBetAmount.reduce((accumulator: number, bet: Bet) => {
+        const acc: any = Number(accumulator);
+        const betAmount: any = Number(bet.betAmount);
+        const sum1: any = parseFloat(acc + betAmount);
+        return sum1
+      }, 0);
+      if(this.debug) {
+        console.log('FindComponent.component: createCounts(): this.payoutCount: ', this.payoutCount,' this.betAmountCount: ',this.betAmountCount);
+      } 
+      const payoutCount: any = Number(this.payoutCount);
+      const betAmountCount: any = Number(this.betAmountCount);
+      if(this.debug) {
+        console.log('FindComponent.component: createCounts(): updateCounter: payoutCount: ',parseFloat(payoutCount),' betAmountCount: ',parseFloat(betAmountCount));
+      }
+      countData['payoutCount'] = payoutCount;
+      countData['betAmountCount'] = betAmountCount;
+    }
+    return countData;
+  }
+
+  subscribeToNewCounters(params: any): void {
+    this.apollo.subscribe({
+      query: COUNTERS_SUBSCRIPTION,
+      fetchPolicy: "no-cache",
+      variables: {
+        id: 1,
+        payoutCount: params.payoutCount,
+        betAmountCount: params.betAmountCount
+      }
+    })
+    .subscribe(({ data }) => {
+      //if(this.debug) {
+        console.log('FindComponent.component: subscribeToNewCounters(): data: ', data);
+      //} 
+      if(data && data['counterSubscription']){
+        this.ws_payoutCount = data['counterSubscription']['payoutCount'];
+        this.ws_betAmountCount = data['counterSubscription']['betAmountCount'];
+      }
+    },
+    (error) => {
+      console.log('there was an error sending the query', error);
+    });
   }
 
   private createForms(): void {
@@ -494,6 +653,40 @@ export class FindComponent implements OnInit, OnDestroy {
     }
   }
 
+  getCounterList(): void {
+
+    this.error = "";
+    this.loading = true;
+
+    this.apollo
+    .query<any>({
+      query: gql`
+        {
+          counters{
+            id
+            payoutCount
+            betAmountCount
+          }
+        }
+      `
+    })
+    .subscribe(({ data, loading }) => {
+      if(data){
+        this.counters = data.counters;
+        this.countersFinished.next(true);
+      }
+      else{
+        this.error = "Counters do not exist";
+      }
+      this.loading = loading;
+    },
+    error => {
+      this.loading = false;
+      this.error = error;
+    });
+    
+  }
+
   _createBet(): void {
 
     if(isNaN(this.chance) || this.chance == 0){
@@ -584,9 +777,9 @@ export class FindComponent implements OnInit, OnDestroy {
               }
               return user.id === this.userId;
             })
-            //if(this.debug) {
+            if(this.debug) {
               console.log('FindComponent.component: _createBet(): updateUser: mutationResult: ', mutationResult);
-            //} 
+            } 
             Object.assign([], data.users, {[index]: mutationResult.data.updateUser});
             // Write the data back to the cache.
             store.writeQuery({
@@ -721,19 +914,14 @@ export class FindComponent implements OnInit, OnDestroy {
 
 
   isDefault(betId: number, userId: number): boolean {
-
     const found = this.defaultBets[userId].find( (id: number) => id === betId);
     const result = found !== undefined ? true : false;
-
     return result;
-
   }
 
   parseUserId():void {
-
     const userid = this.userIdFromRoute > 0 ? this.userIdFromRoute : this.userId;
     this.userId = userid === 0 ? 1 : parseInt(userid);
-
   }
 
   ngOnDestroy() {
